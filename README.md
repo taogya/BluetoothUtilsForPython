@@ -30,6 +30,7 @@ This library has models below.
 
 ## Scanner
 ### BleScanFilter
+You create advertising data filter condition.
 | column            | constraint    | type       | default | note              | ex.
 | -                 | -             | -          | -       | -                 | -
 | id                | pk            | BigInteger | auto    | -                 | 1
@@ -44,6 +45,7 @@ This library has models below.
 | service_data      | 1024 char max | Text       | null    | regex, hex string | r'^626C65(34|35)2E30$'
 
 ### BleScanEvent
+You or ble_scanner create scanner event.
 | column     | constraint        | type       | default | note                                | ex.
 | -          | -                 | -          | -       | -                                   | -
 | name       | pk<br>32 char max | Text       | -       | event name                          | ScanEvent001
@@ -51,12 +53,14 @@ This library has models below.
 | interval   | non null          | Float      | 3.0     | monitoring interval of "is_enabled" | 3.0
 
 ### BleScanDevice
+ble_scanner create scanned device.
 | column   | constraint    | type       | default | note              | ex.
 | -        | -             | -          | -       | -                 | -
 | mac_addr | pk            | MACAddress | -       | mac address       | 12:34:56:78:90:AB
 | note     | 256 char max  | Text       | null    | note              | device-001, etc...
 
 ### BleScanResult
+ble_scanner create scanned result.
 | column            | constraint        | type       | default | note              | ex.
 | -                 | -                 | -          | -       | -                 | -
 | id                | pk                | BigInteger | auto    | -                 | 1
@@ -73,12 +77,13 @@ This library has models below.
 # Command
 ## ble_scanner
 scan ble advertising data.
+```
 +--------+ advertising +-------------+
 | device |    --->     | ble_scanner | -> is matches BleScanFilter?
 |        |     <-scan- |             |    -yes-> create BleScanDevice
 +--------+             +-------------+           create BleScanResult
-     :                                
-
+     : 
+```
 ```sh
 $ python manage.py ble_scanner ScanEvent001 &
 ```
