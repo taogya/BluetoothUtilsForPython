@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django_bleak"
+version = "0.0.1"
+authors = [
+  { name="Taogya", email="132679709+taogya@users.noreply.github.com" },
+]
+description = "This library save BLE filter and result with 'bleak' to models on Django."
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+    "django-macaddress >= 1.8.0",
+    "django-regex-field >= 3.0.3",
+    "bleak >= 0.20.2",
+]
+
+[tool.hatch.build]
+exclude = [
+    "build",
+    "example",
+    "tests"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/taogya/DjangoBleak"
+"Bug Tracker" = "https://github.com/taogya/DjangoBleak/issues"
