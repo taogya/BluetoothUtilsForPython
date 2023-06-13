@@ -88,5 +88,5 @@ scan ble advertising data.
 $ python manage.py ble_scanner ScanEvent001 &
 ```
 
-if stop ble_scanner, switch "is_enabled" to be False in BleScanEvent.
+if stop ble_scanner, switch "is_enabled" to be False in BleScanEvent.  
 "is_enabled" in BleScanEvent is checked at specified "interval" in BleScanEvent.
