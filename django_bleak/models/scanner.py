@@ -218,9 +218,10 @@ class BleScanEvent(models.Model):
         null=True,
         default=None)
 
+    # ToDo: not yet implemented "0.0 is not monitored"
     interval = models.FloatField(
         verbose_name='monitoring interval of is_enabled [sec]',
-        help_text='default 3.0[sec], 0.0 is not monitored',
+        help_text=f'default {DEFAULT_INTERVAL:.3f}[sec], 0.0 is not monitored',
         default=DEFAULT_INTERVAL,
         validators=[MinValueValidator(0.0)])
 
@@ -243,7 +244,7 @@ class BleScanDevice(models.Model):
         help_text='device id/name/etc...',
         null=True,
         blank=True,
-        default=False,
+        default=None,
         max_length=256)
 
     def __str__(self):
