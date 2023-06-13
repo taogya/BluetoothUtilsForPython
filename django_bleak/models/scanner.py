@@ -1,13 +1,14 @@
 
-import datetime as dt
 import re
 import typing as typ
 
 import bleak as blk
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models, transaction
 from macaddress.fields import MACAddressField
 from regex_field.fields import RegexField
+
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models, transaction
+from django.utils import timezone
 
 BleScanData = typ.Tuple[blk.BLEDevice, blk.AdvertisementData]
 
@@ -40,10 +41,10 @@ class CustomQueryset(models.QuerySet):
         Args:
             data_list (typ.List[BleScanData]): BleScanData list
         """
-        received_at = dt.datetime.now()
+        received_at = timezone.now()
         filter_data = self.filter_data(data_list)
         addrs = set([dev.address for dev, _ in filter_data])
-        devs = {addr: BleScanDevice.objects.get_or_create(mac_addr=addr)
+        devs = {addr: BleScanDevice.objects.get_or_create(mac_addr=addr)[0]
                 for addr in addrs}
 
         scan_results = []
@@ -211,6 +212,12 @@ class BleScanEvent(models.Model):
         help_text='default False',
         default=False)
 
+    pid = models.IntegerField(
+        verbose_name='pid',
+        help_text='null is no operating',
+        null=True,
+        default=None)
+
     interval = models.FloatField(
         verbose_name='monitoring interval of is_enabled [sec]',
         help_text='default 3.0[sec], 0.0 is not monitored',
@@ -218,7 +225,7 @@ class BleScanEvent(models.Model):
         validators=[MinValueValidator(0.0)])
 
     def __str__(self):
-        return f'{self.name}: {self.is_enabled}/{self.interval:.3f}sec'
+        return f'{self.name}: {self.is_enabled}/{self.pid}/{self.interval:.3f}sec'
 
     class Meta:
         db_table = 'django_bleak_blescanevent'

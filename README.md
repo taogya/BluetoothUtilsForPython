@@ -50,6 +50,7 @@ You or ble_scanner create scanner event.
 | -          | -                 | -          | -       | -                                   | -
 | name       | pk<br>32 char max | Text       | -       | event name                          | ScanEvent001
 | is_enabled | non null          | Boolean    | False   | "True" is enabled                   | True
+| pid        |                   | Integer    | null    | null is no operating                | 12345
 | interval   | non null          | Float      | 3.0     | monitoring interval of "is_enabled" | 3.0
 
 ### BleScanDevice
