@@ -27,7 +27,7 @@ dependencies = [
 exclude = [
     "build",
     "example",
-    "tests"
+    "django_bleak/tests"
 ]
 
 [project.urls]
