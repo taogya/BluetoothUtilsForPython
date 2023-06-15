@@ -20,6 +20,7 @@ classifiers = [
 dependencies = [
     "django-macaddress >= 1.8.0",
     "django-regex-field >= 3.0.3",
+    "django-admin-rangefilter >= 0.10.0",
     "bleak >= 0.20.2",
 ]
 

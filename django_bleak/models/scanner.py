@@ -9,6 +9,7 @@ from regex_field.fields import RegexField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 BleScanData = typ.Tuple[blk.BLEDevice, blk.AdvertisementData]
 
@@ -50,7 +51,7 @@ class CustomQueryset(models.QuerySet):
         scan_results = []
         for (dev, adv) in filter_data:
             scan_results += [
-                # for manufacturer data
+                # for manufacturer_data
                 BleScanResult(
                     received_at=received_at,
                     device=devs[dev.address],
@@ -61,7 +62,7 @@ class CustomQueryset(models.QuerySet):
                     rssi=adv.rssi,
                 ) for company_code in adv.manufacturer_data
             ] + [
-                # for service data
+                # for service_data
                 BleScanResult(
                     received_at=received_at,
                     device=devs[dev.address],
@@ -88,27 +89,26 @@ class BleScanFilter(models.Model):
         primary_key=True)
 
     note = models.CharField(
-        verbose_name='note',
-        help_text='filter id/name/etc...',
+        verbose_name=_('note'),
+        help_text=_('for my device'),
         null=True,
         blank=True,
         default=None,
         max_length=256)
 
     is_enabled = models.BooleanField(
-        verbose_name='is filter enabled',
-        help_text='default True',
+        verbose_name=_('is filter enabled'),
         default=True)
 
     mac_addr = MACAddressField(
-        verbose_name='mac address',
+        verbose_name=_('mac address'),
         help_text='12:34:56:78:90:AB',
         null=True,
         blank=True,
         default=None)
 
     local_name = models.CharField(
-        verbose_name='local name',
+        verbose_name=_('local name'),
         help_text=r'device-001',
         null=True,
         blank=True,
@@ -116,51 +116,52 @@ class BleScanFilter(models.Model):
         max_length=256)
 
     company_code = models.IntegerField(
-        verbose_name='company code',
+        verbose_name=_('company code'),
         help_text=r'0xFFFF',
         null=True,
+        blank=True,
         default=None,
         validators=[MinValueValidator(0),
                     MaxValueValidator(65535)])
 
     manufacturer_data = RegexField(
-        verbose_name='regex of manufacturer_data',
+        verbose_name=_('regex of manufacturer_data'),
         help_text=r'^626C65(34|35)2E30$',
         null=True,
         blank=True,
+        default=None,
         max_length=1024,
         re_flags=re.IGNORECASE)
 
     service_uuid = models.UUIDField(
-        verbose_name='service uuid',
+        verbose_name=_('service uuid'),
         help_text=r'01234567-0123-0123-0123-0123456789AB',
         null=True,
+        blank=True,
         default=None)
 
     service_data = RegexField(
-        verbose_name='regex of service_data',
+        verbose_name=_('regex of service_data'),
         help_text=r'^626C65(34|35)2E30$',
         null=True,
         blank=True,
+        default=None,
         max_length=1024,
         re_flags=re.IGNORECASE)
 
     rssi_min = models.IntegerField(
-        verbose_name='rssi min[dBm]',
+        verbose_name=_('rssi min[dBm]'),
         help_text='default -100[dBm]',
         default=-100,
         validators=[MinValueValidator(-100),
                     MaxValueValidator(0)])
 
     rssi_max = models.IntegerField(
-        verbose_name='rssi max[dBm]',
+        verbose_name=_('rssi max[dBm]'),
         help_text='default 0[dBm]',
         default=0,
         validators=[MinValueValidator(-100),
                     MaxValueValidator(0)])
-
-    class Meta:
-        db_table = 'django_bleak_blescanfilter'
 
     objects = CustomManager()
 
@@ -196,6 +197,11 @@ class BleScanFilter(models.Model):
 
         return True
 
+    class Meta:
+        verbose_name = _('ble scan filter')
+        verbose_name_plural = _('ble scan filters')
+        db_table = 'django_bleak_blescanfilter'
+
 
 class BleScanEvent(models.Model):
 
@@ -203,25 +209,24 @@ class BleScanEvent(models.Model):
 
     name = models.CharField(
         primary_key=True,
-        verbose_name='event name',
+        verbose_name=_('event name'),
         help_text='ScanEvent001',
         max_length=32)
 
     is_enabled = models.BooleanField(
-        verbose_name='is scan enabled',
-        help_text='default False',
+        verbose_name=_('is scan enabled'),
         default=False)
 
     pid = models.IntegerField(
-        verbose_name='pid',
-        help_text='null is no operating',
+        verbose_name=_('pid'),
+        help_text=_('null means no process exists.'),
         null=True,
+        blank=True,
         default=None)
 
-    # ToDo: not yet implemented "0.0 is not monitored"
     interval = models.FloatField(
-        verbose_name='monitoring interval of is_enabled [sec]',
-        help_text=f'default {DEFAULT_INTERVAL:.3f}[sec], 0.0 is not monitored',
+        verbose_name=_('monitoring interval of is_enabled [sec]'),
+        help_text=_('default 3.0[sec], 0.0 means no monitoring.'),
         default=DEFAULT_INTERVAL,
         validators=[MinValueValidator(0.0)])
 
@@ -229,6 +234,8 @@ class BleScanEvent(models.Model):
         return f'{self.name}: {self.is_enabled}/{self.pid}/{self.interval:.3f}sec'
 
     class Meta:
+        verbose_name = _('ble scan event')
+        verbose_name_plural = _('ble scan events')
         db_table = 'django_bleak_blescanevent'
 
 
@@ -236,12 +243,12 @@ class BleScanDevice(models.Model):
 
     mac_addr = MACAddressField(
         primary_key=True,
-        verbose_name='mac address',
+        verbose_name=_('mac address'),
         help_text='12:34:56:78:90:AB')
 
     note = models.CharField(
-        verbose_name='note',
-        help_text='device id/name/etc...',
+        verbose_name=_('note'),
+        help_text='device-001',
         null=True,
         blank=True,
         default=None,
@@ -251,6 +258,8 @@ class BleScanDevice(models.Model):
         return f'{self.mac_addr}: {self.note or "-"}'
 
     class Meta:
+        verbose_name = _('ble scan device')
+        verbose_name_plural = _('ble scan devices')
         db_table = 'django_bleak_blescandevice'
 
 
@@ -260,53 +269,60 @@ class BleScanResult(models.Model):
         primary_key=True)
 
     received_at = models.DateTimeField(
-        verbose_name='received datetime')
+        verbose_name=_('received datetime'))
 
     device = models.ForeignKey(
-        verbose_name='relational device',
+        verbose_name=_('relational device'),
         to=BleScanDevice,
         on_delete=models.CASCADE)
 
     local_name = models.CharField(
-        verbose_name='local name',
+        verbose_name=_('local name'),
         null=True,
         blank=True,
         default=None,
         max_length=256)
 
     company_code = models.IntegerField(
-        verbose_name='company code',
+        verbose_name=_('company code'),
         null=True,
+        blank=True,
         default=None,
         validators=[MinValueValidator(0),
                     MaxValueValidator(65535)])
 
     manufacturer_data = models.BinaryField(
-        verbose_name='manufacturer data',
+        verbose_name=_('manufacturer_data'),
         null=True,
+        blank=True,
         default=None,
         max_length=256)
 
     service_uuid = models.UUIDField(
-        verbose_name='service uuid',
+        verbose_name=_('service uuid'),
         null=True,
+        blank=True,
         default=None)
 
     service_data = models.BinaryField(
-        verbose_name='service data',
+        verbose_name=_('service_data'),
         null=True,
+        blank=True,
         default=None,
         max_length=256)
 
     tx_power = models.FloatField(
-        verbose_name='rssi[dB]',
+        verbose_name=_('tx_power[dBm]'),
         null=True,
+        blank=True,
         default=None)
 
     rssi = models.FloatField(
-        verbose_name='rssi[dB]')
+        verbose_name=_('rssi[dBm]'))
 
     class Meta:
+        verbose_name = _('ble scan result')
+        verbose_name_plural = _('ble scan results')
         db_table = 'django_bleak_blescanresult'
         indexes = [
             models.Index(fields=['device', 'company_code'],

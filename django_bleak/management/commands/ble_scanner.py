@@ -8,6 +8,7 @@ from asgiref.sync import sync_to_async
 
 from django.core.management import BaseCommand
 from django.core.management.base import CommandParser
+from django.db import connection
 from django_bleak.models import BleScanEvent, BleScanFilter
 
 logger = logging.getLogger('ble_scanner')
@@ -38,7 +39,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser):
         parser.add_argument('event', help='scan event name.', type=str)
 
-    def handle(self, event, *args, **options):
+    def main(self, event, *args, **options):
         # get scan event. if does not exists it, create.
         scan_event, _ = BleScanEvent.objects.get_or_create(name=event)
         if scan_event.pid is not None:
@@ -66,3 +67,12 @@ class Command(BaseCommand):
             scan_event.pid = None
             scan_event.save()
             logger.info(f'updated scan event. -> {scan_event}')
+
+    def handle(self, event, *args, **options):
+        pid = os.fork()
+        if pid == 0:
+            logger.info('start ble_scanner')
+            connection.close()
+            self.main(event, *args, **options)
+            logger.info('end ble_scanner')
+            exit(0)

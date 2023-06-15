@@ -15,6 +15,7 @@ $ vi settings.py
 INSTALLED_APPS = [
     :
     'django_bleak',
+    'rangefilter',
     :
 ]
 ```
@@ -77,7 +78,8 @@ ble_scanner create scanned result.
 
 # Command
 ## ble_scanner
-scan ble advertising data.
+scan ble advertising data.  
+This command is daemonized.
 ```
 +--------+ advertising +-------------+
 | device |    --->     | ble_scanner | -> is matches BleScanFilter?
@@ -86,8 +88,9 @@ scan ble advertising data.
      : 
 ```
 ```sh
-$ python manage.py ble_scanner ScanEvent001 &
+$ python manage.py ble_scanner ScanEvent001
 ```
 
 if stop ble_scanner, switch "is_enabled" to be False in BleScanEvent.  
-"is_enabled" in BleScanEvent is checked at specified "interval" in BleScanEvent.
+"is_enabled" in BleScanEvent is checked at specified "interval" in BleScanEvent.  
+please use logger as 'ble_scanner'.
