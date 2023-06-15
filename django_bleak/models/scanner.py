@@ -181,14 +181,14 @@ class BleScanFilter(models.Model):
             return False
         if self.local_name and self.local_name != adv.local_name:
             return False
-        if self.company_code and self.company_code not in adv.manufacturer_data.keys():
+        if (self.company_code is not None) and (self.company_code not in adv.manufacturer_data.keys()):
             return False
-        if self.manufacturer_data and all([self.manufacturer_data.match(v) is None
+        if self.manufacturer_data and all([self.manufacturer_data.match(v.hex()) is None
                                            for v in adv.manufacturer_data.values()]):
             return False
         if self.service_uuid and self.service_uuid not in adv.service_data.keys():
             return False
-        if self.service_data and all([self.service_data.match(v) is None
+        if self.service_data and all([self.service_data.match(v.hex()) is None
                                       for v in adv.service_data.values()]):
             return False
         if not (self.rssi_min <= adv.rssi <= self.rssi_max):
