@@ -26,14 +26,15 @@ class Command(BaseCommand):
         logger.info('scan_task finish.')
 
     async def monitor_task(self, async_event: asyncio.Event, name: str, interval: float):
-        while True:
-            await asyncio.sleep(interval)
-            event = await sync_to_async(BleScanEvent.objects.get)(name=name)
+        event = await sync_to_async(BleScanEvent.objects.get)(name=name)
+        while event.interval > 0.0:
             logger.info(f'{event}')
+            await asyncio.sleep(interval)
             if not event.is_enabled:
                 async_event.set()
                 logger.info('set async event.')
                 break
+            event = await sync_to_async(BleScanEvent.objects.get)(name=name)
         logger.info('monitor_task finish.')
 
     def add_arguments(self, parser: CommandParser):
