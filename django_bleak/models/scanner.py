@@ -36,7 +36,7 @@ class CustomQueryset(models.QuerySet):
         return res
 
     @transaction.atomic
-    def create_data(self, data_list: typ.List[BleScanData]):
+    def create_data(self, data_list: typ.List[BleScanData]) -> 'models.QuerySet[BleScanResult]':
         """save result that matches BleScanFilters
 
         Args:
@@ -73,7 +73,7 @@ class CustomQueryset(models.QuerySet):
                     rssi=adv.rssi,
                 ) for service_uuid in adv.service_data
             ]
-        BleScanResult.objects.bulk_create(
+        return BleScanResult.objects.bulk_create(
             scan_results,
             batch_size=5000,
         )
@@ -226,12 +226,12 @@ class BleScanEvent(models.Model):
 
     interval = models.FloatField(
         verbose_name=_('monitoring interval of is_enabled [sec]'),
-        help_text=_('default 3.0[sec], 0.0 means no monitoring.'),
+        help_text='>= 1.0[sec]',
         default=DEFAULT_INTERVAL,
-        validators=[MinValueValidator(0.0)])
+        validators=[MinValueValidator(1.0)])
 
     def __str__(self):
-        return f'{self.name}: {self.is_enabled}/{self.pid}/{self.interval:.3f}sec'
+        return f'{self.name}: {self.is_enabled}/{self.pid or "-"}/{self.interval:.3f}sec'
 
     class Meta:
         verbose_name = _('ble scan event')
@@ -319,6 +319,9 @@ class BleScanResult(models.Model):
 
     rssi = models.FloatField(
         verbose_name=_('rssi[dBm]'))
+
+    def __str__(self):
+        return f'{self.device.mac_addr}: {self.received_at}'
 
     class Meta:
         verbose_name = _('ble scan result')

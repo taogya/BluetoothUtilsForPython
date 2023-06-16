@@ -4,6 +4,7 @@ import logging
 import os
 
 import bleak as blk
+import psutil
 from asgiref.sync import sync_to_async
 
 from django.core.management import BaseCommand
@@ -16,8 +17,12 @@ logger = logging.getLogger('ble_scanner')
 
 class Command(BaseCommand):
 
+    filters = BleScanFilter.objects.filter(is_enabled=True).order_by('id')
+
     async def callback(self, dev: blk.BLEDevice, adv: blk.AdvertisementData):
-        await sync_to_async(BleScanFilter.objects.filter(is_enabled=True).order_by('id').create_data)([(dev, adv)])
+        ret = await sync_to_async(self.filters.create_data)([(dev, adv)])
+        if len(ret):
+            logger.info(f'create -> {ret}')
 
     async def scan_task(self, async_event: asyncio.Event):
         async with blk.BleakScanner(self.callback):
@@ -26,53 +31,66 @@ class Command(BaseCommand):
         logger.info('scan_task finish.')
 
     async def monitor_task(self, async_event: asyncio.Event, name: str, interval: float):
-        while True:
-            await asyncio.sleep(interval)
-            event = await sync_to_async(BleScanEvent.objects.get)(name=name)
-            logger.info(f'{event}')
-            if not event.is_enabled:
-                async_event.set()
-                logger.info('set async event.')
-                break
-        logger.info('monitor_task finish.')
+        event = await sync_to_async(BleScanEvent.objects.get)(name=name)
+        try:
+            while event.interval > 0.0:
+                logger.info(f'{event}')
+                await asyncio.sleep(event.interval)
+                if not event.is_enabled:
+                    break
+                event = await sync_to_async(BleScanEvent.objects.get)(name=name)
+                self.filters = await sync_to_async(BleScanFilter.objects.filter)(is_enabled=True)
+        finally:
+            async_event.set()
+            logger.info('set async event.')
+            logger.info('monitor_task finish.')
 
     def add_arguments(self, parser: CommandParser):
         parser.add_argument('event', help='scan event name.', type=str)
+        parser.add_argument('--debug', help='debug flag.', action='store_true')
 
-    def main(self, event, *args, **options):
+    def get_scan_event(self, event):
         # get scan event. if does not exists it, create.
         scan_event, _ = BleScanEvent.objects.get_or_create(name=event)
         if scan_event.pid is not None:
-            err_msg = f'{scan_event.name} is already operating. pid = {scan_event.pid}.'
-            logger.error(f'{err_msg}')
-            raise Exception(f'{err_msg}')
+            try:
+                psutil.Process(scan_event.pid).kill()
+                logger.info(f'{scan_event.pid} killed')
+            except psutil.NoSuchProcess:
+                logger.info(f'{scan_event.pid} already killed')
         # update scan event.
         scan_event.is_enabled = True
         scan_event.pid = os.getpid()
         scan_event.save()
         logger.info(f'updated scan event. -> {scan_event}')
-        # do task.
-        async_event = asyncio.Event()
-        loop = asyncio.get_event_loop()
-        futures = asyncio.gather(self.scan_task(async_event),
-                                 self.monitor_task(async_event, scan_event.name, scan_event.interval))
+        return scan_event
+
+    def main(self, event, interval, *args, **options):
         try:
+            # do task.
+            async_event = asyncio.Event()
+            loop = asyncio.get_event_loop()
+            futures = asyncio.gather(self.scan_task(async_event),
+                                     self.monitor_task(async_event, event, interval))
             loop.run_until_complete(futures)
             logger.info('loop finish.')
         except BaseException:
             logger.exception('internal error.')
         finally:
-            scan_event = BleScanEvent.objects.get(name=event)
-            scan_event.is_enabled = False
-            scan_event.pid = None
-            scan_event.save()
-            logger.info(f'updated scan event. -> {scan_event}')
+            scan_event = BleScanEvent.objects.filter(name=event).first()
+            if scan_event:
+                scan_event.is_enabled = False
+                scan_event.pid = None
+                scan_event.save()
+                logger.info(f'updated scan event. -> {scan_event}')
 
     def handle(self, event, *args, **options):
-        pid = os.fork()
+        scan_event = self.get_scan_event(event)
+        pid = 0 if options['debug'] else os.fork()
         if pid == 0:
             logger.info('start ble_scanner')
             connection.close()
-            self.main(event, *args, **options)
+            self.main(scan_event.name, scan_event.interval, *args, **options)
             logger.info('end ble_scanner')
-            exit(0)
+            return
+        logger.info(f'start -> {pid}')
