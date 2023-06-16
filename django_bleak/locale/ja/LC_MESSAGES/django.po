@@ -111,10 +111,6 @@ msgstr "Nullはプロセスが存在しません。"
 msgid "monitoring interval of is_enabled [sec]"
 msgstr "is_enabledの監視周期[sec]"
 
-#: mesh_srv/django_bleak/models/scanner.py:229
-msgid "default 3.0[sec], 0.0 means no monitoring."
-msgstr "default 3.0[sec], 0.0は監視しません。"
-
 #: mesh_srv/django_bleak/models/scanner.py:237
 msgid "ble scan event"
 msgstr "BLEスキャンイベント"
