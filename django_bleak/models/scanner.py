@@ -5,13 +5,14 @@ from enum import Enum
 
 import bleak as blk
 import psutil
+from macaddress.fields import MACAddressField
+from regex_field.fields import RegexField as BrokenRegexField
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.forms.fields import CharField
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from macaddress.fields import MACAddressField
-from regex_field.fields import RegexField as BrokenRegexField
 
 BleScanData = typ.Tuple[blk.BLEDevice, blk.AdvertisementData]
 
