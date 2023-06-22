@@ -1,17 +1,37 @@
 
 import re
 import typing as typ
+from enum import Enum
 
 import bleak as blk
-from macaddress.fields import MACAddressField
-from regex_field.fields import RegexField
-
+import psutil
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
+from django.forms.fields import CharField
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from macaddress.fields import MACAddressField
+from regex_field.fields import RegexField as BrokenRegexField
 
 BleScanData = typ.Tuple[blk.BLEDevice, blk.AdvertisementData]
+
+
+# until fix issue below ===========================================================
+# https://github.com/ambitioninc/django-regex-field/issues/34
+class FixedRegexField(CharField):
+    def prepare_value(self, value):
+        try:
+            return value.pattern
+        except AttributeError:
+            return value
+
+
+class RegexField(BrokenRegexField):
+    def formfield(self, **kwargs):
+        defaults = {'form_class': FixedRegexField}
+        defaults.update(kwargs)
+        return super().formfield(**defaults)
+# =================================================================================
 
 
 class CustomQueryset(models.QuerySet):
@@ -224,6 +244,13 @@ class BleScanEvent(models.Model):
         blank=True,
         default=None)
 
+    create_time = models.FloatField(
+        verbose_name=_('create time'),
+        help_text=_('null means no process exists.'),
+        null=True,
+        blank=True,
+        default=None)
+
     interval = models.FloatField(
         verbose_name=_('monitoring interval of is_enabled [sec]'),
         help_text='>= 1.0[sec]',
@@ -231,7 +258,38 @@ class BleScanEvent(models.Model):
         validators=[MinValueValidator(1.0)])
 
     def __str__(self):
-        return f'{self.name}: {self.is_enabled}/{self.pid or "-"}/{self.interval:.3f}sec'
+        pid_info = self.pid and f'{self.pid}@{self.create_time}'
+        return f'{self.name}: {self.is_enabled}/{pid_info or "-"}/{self.interval:.3f}sec'
+
+    class Status(Enum):
+        Waitting = "Waitting"
+        Running = "Running"
+        Error = "Error"
+        Zombie = "Zombie"
+        Killed = "Killed"
+
+    @property
+    def status(self) -> 'Status':
+        """Get Process Status
+
+        Returns: result code below
+            No | pid   | is_running | is_enabled | Return
+            01 | null  |            |          t | Error
+            02 | null  |            |          f | Waitting
+            03 | reuse |          f |            | Killed
+            04 | me    |          t |          f | Zombie
+            05 | me    |          t |          t | Running
+        """
+        # saved process
+        proc = psutil.Process()
+        proc._init(self.pid, _ignore_nsp=True)
+        proc._create_time = self.create_time
+        status = {None: {True: self.Status.Error,
+                         False: self.Status.Waitting}[self.is_enabled]}.get(self.pid)\
+            or {True: {True: self.Status.Running,
+                       False: self.Status.Zombie}[self.is_enabled],
+                False: self.Status.Killed}[proc.is_running()]
+        return status
 
     class Meta:
         verbose_name = _('ble scan event')

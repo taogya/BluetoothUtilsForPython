@@ -6,7 +6,6 @@ import os
 import bleak as blk
 import psutil
 from asgiref.sync import sync_to_async
-
 from django.core.management import BaseCommand
 from django.core.management.base import CommandParser
 from django.db import connection
@@ -22,7 +21,7 @@ class Command(BaseCommand):
     async def callback(self, dev: blk.BLEDevice, adv: blk.AdvertisementData):
         ret = await sync_to_async(self.filters.create_data)([(dev, adv)])
         if len(ret):
-            logger.info(f'create -> {ret}')
+            logger.debug(f'create -> {ret}')
 
     async def scan_task(self, async_event: asyncio.Event):
         async with blk.BleakScanner(self.callback):
@@ -34,9 +33,10 @@ class Command(BaseCommand):
         event = await sync_to_async(BleScanEvent.objects.get)(name=name)
         try:
             while event.interval > 0.0:
-                logger.info(f'{event}')
+                logger.debug(f'{event}')
                 await asyncio.sleep(event.interval)
                 if not event.is_enabled:
+                    logger.info('is_enabled switched to false.')
                     break
                 event = await sync_to_async(BleScanEvent.objects.get)(name=name)
                 self.filters = await sync_to_async(BleScanFilter.objects.filter)(is_enabled=True)
@@ -52,15 +52,15 @@ class Command(BaseCommand):
     def get_scan_event(self, event):
         # get scan event. if does not exists it, create.
         scan_event, _ = BleScanEvent.objects.get_or_create(name=event)
-        if scan_event.pid is not None:
-            try:
-                psutil.Process(scan_event.pid).kill()
-                logger.info(f'{scan_event.pid} killed')
-            except psutil.NoSuchProcess:
-                logger.info(f'{scan_event.pid} already killed')
+        logger.info(f'{scan_event} -> {scan_event.status}')
+        if scan_event.status in (BleScanEvent.Status.Running, BleScanEvent.Status.Zombie):
+            psutil.Process(scan_event.pid).kill()
+            logger.info(f'{scan_event.pid} killed')
         # update scan event.
+        proc = psutil.Process()
         scan_event.is_enabled = True
-        scan_event.pid = os.getpid()
+        scan_event.pid = proc.pid
+        scan_event.create_time = proc.create_time()
         scan_event.save()
         logger.info(f'updated scan event. -> {scan_event}')
         return scan_event
@@ -81,6 +81,7 @@ class Command(BaseCommand):
             if scan_event:
                 scan_event.is_enabled = False
                 scan_event.pid = None
+                scan_event.create_time = None
                 scan_event.save()
                 logger.info(f'updated scan event. -> {scan_event}')
 
