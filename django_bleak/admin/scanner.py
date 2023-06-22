@@ -1,14 +1,13 @@
 # Register your models here.
 import logging
 
-from rangefilter.filters import DateTimeRangeFilterBuilder
-
 from django.contrib import admin, messages
 from django.core.management import call_command
 from django.utils.translation import gettext_lazy as _
 from django_bleak import models
+from rangefilter.filters import DateTimeRangeFilterBuilder
 
-logger = logging.getLogger('general')
+logger = logging.getLogger('ble_scanner')
 
 
 @admin.register(models.BleScanFilter)
@@ -21,28 +20,28 @@ class BleScanFilterAdmin(admin.ModelAdmin):
 
 @admin.register(models.BleScanEvent)
 class BleScanEventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_enabled', 'pid', 'interval')
-    list_editable = ('is_enabled',)
+    list_display = ('name', 'is_enabled', 'pid', 'create_time', 'interval')
     list_per_page = 100
     list_max_show_all = 1000
-    actions = ('run_scan_event',)
+    actions = ('run_scan_event', 'stop_scan_event')
 
     def run_scan_event(self, request, queryset):
-        if models.BleScanEvent.objects.filter(is_enabled=True).count() > 0:
-            messages.error(request,
-                           _('already exists running process.' +
-                             'you need to stop running process.'))
+        if models.BleScanEvent.objects.filter(is_enabled=True).exists():
+            messages.error(request, _('running event already exists. you need to stop all event.'))
         elif queryset.count() != 1:
-            messages.error(request,
-                           _('please select one scan event.'))
+            messages.error(request, _('please select one scan event.'))
         else:
             try:
                 call_command('ble_scanner', queryset.first().name)
             except BaseException:
                 logger.exception('ble_scanner error')
-                messages.error(request,
-                               _('execution failed.'))
+                messages.error(request, _('execution failed.'))
     run_scan_event.short_description = _('run selected scan event')
+
+    def stop_scan_event(self, request, queryset):
+        queryset.update(is_enabled=False)
+
+    stop_scan_event.short_description = _('stop selected scan event')
 
 
 @admin.register(models.BleScanDevice)
