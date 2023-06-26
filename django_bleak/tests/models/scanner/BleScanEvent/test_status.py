@@ -1,9 +1,7 @@
 
 
-import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import psutil
 from django.test import TestCase
 from django_bleak.models import BleScanEvent
 

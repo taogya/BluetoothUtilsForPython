@@ -292,6 +292,15 @@ class BleScanEvent(models.Model):
                 False: self.Status.Killed}[proc.is_running()]
         return status
 
+    @property
+    def is_running(self) -> bool:
+        """is process runnning
+
+        Returns:
+            bool: "True" is running
+        """
+        return self.status in [self.Status.Running, self.Status.Zombie]
+
     class Meta:
         verbose_name = _('ble scan event')
         verbose_name_plural = _('ble scan events')
