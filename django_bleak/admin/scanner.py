@@ -20,7 +20,7 @@ class BleScanFilterAdmin(admin.ModelAdmin):
 
 @admin.register(models.BleScanEvent)
 class BleScanEventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_enabled', 'pid', 'create_time', 'interval')
+    list_display = ('name', 'is_enabled', 'scan_mode', 'pid', 'create_time', 'interval')
     list_per_page = 100
     list_max_show_all = 1000
     actions = ('run_scan_event', 'stop_scan_event')
@@ -32,7 +32,11 @@ class BleScanEventAdmin(admin.ModelAdmin):
             messages.error(request, _('please select one scan event.'))
         else:
             try:
-                call_command('ble_scanner', queryset.first().name)
+                qs = queryset.first()
+                mode = models.BleScanEvent.ModeChoices
+                call_command({mode.SEQUENTIAL: 'ble_scanner',
+                              mode.INTERVAL: 'ble_scanner_interval'}[qs.scan_mode],
+                             qs.name)
             except BaseException:
                 logger.exception('ble_scanner error')
                 messages.error(request, _('execution failed.'))

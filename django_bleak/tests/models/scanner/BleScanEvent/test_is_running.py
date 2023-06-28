@@ -10,16 +10,16 @@ class Test(TestCase):
 
     def test_true(self):
         obj = BleScanEvent()
-        with patch('django_bleak.models.scanner.BleScanEvent.status', property(lambda self: BleScanEvent.Status.Running)):
+        with patch('django_bleak.models.scanner.BleScanEvent.status', property(lambda self: BleScanEvent.Status.RUNNING)):
             self.assertTrue(obj.is_running)
-        with patch('django_bleak.models.scanner.BleScanEvent.status', property(lambda self: BleScanEvent.Status.Zombie)):
+        with patch('django_bleak.models.scanner.BleScanEvent.status', property(lambda self: BleScanEvent.Status.ZOMBIE)):
             self.assertTrue(obj.is_running)
 
     def test_false(self):
         obj = BleScanEvent()
-        with patch('django_bleak.models.scanner.BleScanEvent.status', property(lambda self: BleScanEvent.Status.Waitting)):
+        with patch('django_bleak.models.scanner.BleScanEvent.status', property(lambda self: BleScanEvent.Status.WAITTING)):
             self.assertFalse(obj.is_running)
-        with patch('django_bleak.models.scanner.BleScanEvent.status', property(lambda self: BleScanEvent.Status.Killed)):
+        with patch('django_bleak.models.scanner.BleScanEvent.status', property(lambda self: BleScanEvent.Status.KILLED)):
             self.assertFalse(obj.is_running)
-        with patch('django_bleak.models.scanner.BleScanEvent.status', property(lambda self: BleScanEvent.Status.Error)):
+        with patch('django_bleak.models.scanner.BleScanEvent.status', property(lambda self: BleScanEvent.Status.ERROR)):
             self.assertFalse(obj.is_running)

@@ -20,22 +20,22 @@ class Test(TestCase):
         with patch('django_bleak.models.scanner.psutil.Process.is_running') as mock:
             # 01
             self.assertEqual(BleScanEvent(is_enabled=True).status,
-                             BleScanEvent.Status.Error)
+                             BleScanEvent.Status.ERROR)
             # 02
             self.assertEqual(BleScanEvent(is_enabled=False).status,
-                             BleScanEvent.Status.Waitting)
+                             BleScanEvent.Status.WAITTING)
             # 03
             mock.return_value = False
             self.assertEqual(BleScanEvent(pid=1, is_enabled=False).status,
-                             BleScanEvent.Status.Killed)
+                             BleScanEvent.Status.KILLED)
             mock.return_value = False
             self.assertEqual(BleScanEvent(pid=1, is_enabled=True).status,
-                             BleScanEvent.Status.Killed)
+                             BleScanEvent.Status.KILLED)
             # 04
             mock.return_value = True
             self.assertEqual(BleScanEvent(pid=1, is_enabled=False).status,
-                             BleScanEvent.Status.Zombie)
+                             BleScanEvent.Status.ZOMBIE)
             # 05
             mock.return_value = True
             self.assertEqual(BleScanEvent(pid=1, is_enabled=True).status,
-                             BleScanEvent.Status.Running)
+                             BleScanEvent.Status.RUNNING)
