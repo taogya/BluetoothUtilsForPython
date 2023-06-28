@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-22 15:57+0900\n"
+"POT-Creation-Date: 2023-06-28 11:28+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,152 +18,165 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: mesh_srv/django_bleak/admin/scanner.py:31
+#: mesh_srv/django_bleak/admin/scanner.py:30
 msgid "running event already exists. you need to stop all event."
 msgstr "動作中のイベントが既に存在します。全て停止する必要があります。"
 
-#: mesh_srv/django_bleak/admin/scanner.py:33
+#: mesh_srv/django_bleak/admin/scanner.py:32
 msgid "please select one scan event."
 msgstr "スキャンイベントを一つ選択してください。"
 
-#: mesh_srv/django_bleak/admin/scanner.py:39
+#: mesh_srv/django_bleak/admin/scanner.py:38
 msgid "execution failed."
 msgstr "実行に失敗しました。"
 
-#: mesh_srv/django_bleak/admin/scanner.py:40
+#: mesh_srv/django_bleak/admin/scanner.py:39
 msgid "run selected scan event"
 msgstr "選択されたスキャンイベントの実行"
 
-#: mesh_srv/django_bleak/admin/scanner.py:45
+#: mesh_srv/django_bleak/admin/scanner.py:44
 msgid "stop selected scan event"
 msgstr "選択されたスキャンイベントの停止"
 
-#: mesh_srv/django_bleak/models/scanner.py:93
-#: mesh_srv/django_bleak/models/scanner.py:289
+#: mesh_srv/django_bleak/models/scanner.py:112
+#: mesh_srv/django_bleak/models/scanner.py:327
 msgid "note"
 msgstr "メモ"
 
-#: mesh_srv/django_bleak/models/scanner.py:94
+#: mesh_srv/django_bleak/models/scanner.py:113
 msgid "for my device"
 msgstr "Myデバイス用"
 
-#: mesh_srv/django_bleak/models/scanner.py:101
+#: mesh_srv/django_bleak/models/scanner.py:120
 msgid "is filter enabled"
 msgstr "フィルタの有効化"
 
-#: mesh_srv/django_bleak/models/scanner.py:105
-#: mesh_srv/django_bleak/models/scanner.py:285
+#: mesh_srv/django_bleak/models/scanner.py:124
+#: mesh_srv/django_bleak/models/scanner.py:323
 msgid "mac address"
 msgstr "MACアドレス"
 
-#: mesh_srv/django_bleak/models/scanner.py:112
-#: mesh_srv/django_bleak/models/scanner.py:319
+#: mesh_srv/django_bleak/models/scanner.py:131
+#: mesh_srv/django_bleak/models/scanner.py:357
 msgid "local name"
 msgstr "ローカル名"
 
-#: mesh_srv/django_bleak/models/scanner.py:120
-#: mesh_srv/django_bleak/models/scanner.py:326
+#: mesh_srv/django_bleak/models/scanner.py:139
+#: mesh_srv/django_bleak/models/scanner.py:364
 msgid "company code"
 msgstr "企業コード"
 
-#: mesh_srv/django_bleak/models/scanner.py:129
+#: mesh_srv/django_bleak/models/scanner.py:148
 msgid "regex of manufacturer_data"
 msgstr "manufacturer_dataの正規表現"
 
-#: mesh_srv/django_bleak/models/scanner.py:138
-#: mesh_srv/django_bleak/models/scanner.py:341
+#: mesh_srv/django_bleak/models/scanner.py:157
+#: mesh_srv/django_bleak/models/scanner.py:379
 msgid "service uuid"
 msgstr "サービスUUID"
 
-#: mesh_srv/django_bleak/models/scanner.py:145
+#: mesh_srv/django_bleak/models/scanner.py:164
 msgid "regex of service_data"
 msgstr "service_dataの正規表現"
 
-#: mesh_srv/django_bleak/models/scanner.py:154
+#: mesh_srv/django_bleak/models/scanner.py:173
 msgid "rssi min[dBm]"
 msgstr "最小RSSI[dBm]"
 
-#: mesh_srv/django_bleak/models/scanner.py:161
+#: mesh_srv/django_bleak/models/scanner.py:180
 msgid "rssi max[dBm]"
 msgstr "最大RSSI[dBm]"
 
-#: mesh_srv/django_bleak/models/scanner.py:202
+#: mesh_srv/django_bleak/models/scanner.py:221
 msgid "ble scan filter"
 msgstr "BLEスキャンフィルタ"
 
-#: mesh_srv/django_bleak/models/scanner.py:203
+#: mesh_srv/django_bleak/models/scanner.py:222
 msgid "ble scan filters"
 msgstr "BLEスキャンフィルタ"
 
-#: mesh_srv/django_bleak/models/scanner.py:213
+#: mesh_srv/django_bleak/models/scanner.py:231
+msgid "Sequential"
+msgstr "シーケンシャル"
+
+#: mesh_srv/django_bleak/models/scanner.py:232
+msgid "Interval"
+msgstr "インターバル"
+
+#: mesh_srv/django_bleak/models/scanner.py:236
 msgid "event name"
 msgstr "イベント名"
 
-#: mesh_srv/django_bleak/models/scanner.py:218
+#: mesh_srv/django_bleak/models/scanner.py:241
 msgid "is scan enabled"
 msgstr "スキャンの有効化"
 
-#: mesh_srv/django_bleak/models/scanner.py:222
+#: mesh_srv/django_bleak/models/scanner.py:245
 msgid "pid"
 msgstr "PID"
 
-#: mesh_srv/django_bleak/models/scanner.py:223
-#: mesh_srv/django_bleak/models/scanner.py:230
+#: mesh_srv/django_bleak/models/scanner.py:246
+#: mesh_srv/django_bleak/models/scanner.py:253
 msgid "null means no process exists."
 msgstr "Nullはプロセスが存在しません。"
 
-#: mesh_srv/django_bleak/models/scanner.py:229
+#: mesh_srv/django_bleak/models/scanner.py:252
 msgid "create time"
 msgstr "作成時間"
 
-#: mesh_srv/django_bleak/models/scanner.py:236
+#: mesh_srv/django_bleak/models/scanner.py:259
 msgid "monitoring interval of is_enabled [sec]"
 msgstr "is_enabledの監視周期[sec]"
 
-#: mesh_srv/django_bleak/models/scanner.py:276
+#: mesh_srv/django_bleak/models/scanner.py:265
+#: mesh_srv/django_bleak/models/scanner.py:266
+msgid "scan mode"
+msgstr "スキャンモード"
+
+#: mesh_srv/django_bleak/models/scanner.py:314
 msgid "ble scan event"
 msgstr "BLEスキャンイベント"
 
-#: mesh_srv/django_bleak/models/scanner.py:277
+#: mesh_srv/django_bleak/models/scanner.py:315
 msgid "ble scan events"
 msgstr "BLEスキャンイベント"
 
-#: mesh_srv/django_bleak/models/scanner.py:300
+#: mesh_srv/django_bleak/models/scanner.py:338
 msgid "ble scan device"
 msgstr "BLEスキャンデバイス"
 
-#: mesh_srv/django_bleak/models/scanner.py:301
+#: mesh_srv/django_bleak/models/scanner.py:339
 msgid "ble scan devices"
 msgstr "BLEスキャンデバイス"
 
-#: mesh_srv/django_bleak/models/scanner.py:311
+#: mesh_srv/django_bleak/models/scanner.py:349
 msgid "received datetime"
 msgstr "受信日時"
 
-#: mesh_srv/django_bleak/models/scanner.py:314
+#: mesh_srv/django_bleak/models/scanner.py:352
 msgid "relational device"
 msgstr "関連するデバイス"
 
-#: mesh_srv/django_bleak/models/scanner.py:334
+#: mesh_srv/django_bleak/models/scanner.py:372
 msgid "manufacturer_data"
 msgstr "manufacturer_data"
 
-#: mesh_srv/django_bleak/models/scanner.py:347
+#: mesh_srv/django_bleak/models/scanner.py:385
 msgid "service_data"
 msgstr "service_data"
 
-#: mesh_srv/django_bleak/models/scanner.py:354
+#: mesh_srv/django_bleak/models/scanner.py:392
 msgid "tx_power[dBm]"
 msgstr "TxPower[dBm]"
 
-#: mesh_srv/django_bleak/models/scanner.py:360
+#: mesh_srv/django_bleak/models/scanner.py:398
 msgid "rssi[dBm]"
 msgstr "RSSI[dBm]"
 
-#: mesh_srv/django_bleak/models/scanner.py:366
+#: mesh_srv/django_bleak/models/scanner.py:404
 msgid "ble scan result"
 msgstr "BLEスキャン結果"
 
-#: mesh_srv/django_bleak/models/scanner.py:367
+#: mesh_srv/django_bleak/models/scanner.py:405
 msgid "ble scan results"
 msgstr "BLEスキャン結果"

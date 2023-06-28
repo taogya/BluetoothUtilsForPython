@@ -54,7 +54,7 @@ class Command(BaseCommand):
         # get scan event. if does not exists it, create.
         scan_event, _ = BleScanEvent.objects.get_or_create(name=event)
         logger.info(f'{scan_event} -> {scan_event.status}')
-        if scan_event.status in (BleScanEvent.Status.Running, BleScanEvent.Status.Zombie):
+        if scan_event.status in (BleScanEvent.Status.RUNNING, BleScanEvent.Status.ZOMBIE):
             psutil.Process(scan_event.pid).kill()
             logger.info(f'{scan_event.pid} killed')
         # update scan event.

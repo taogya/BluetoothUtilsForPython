@@ -228,6 +228,10 @@ class BleScanEvent(models.Model):
 
     DEFAULT_INTERVAL = 3.0
 
+    class ModeChoices(models.TextChoices):
+        SEQUENTIAL = 'seq', _('Sequential')
+        INTERVAL = 'itv', _('Interval')
+
     name = models.CharField(
         primary_key=True,
         verbose_name=_('event name'),
@@ -258,16 +262,23 @@ class BleScanEvent(models.Model):
         default=DEFAULT_INTERVAL,
         validators=[MinValueValidator(1.0)])
 
+    scan_mode = models.CharField(
+        verbose_name=_('scan mode'),
+        help_text=_('scan mode'),
+        choices=ModeChoices.choices,
+        default=ModeChoices.INTERVAL,
+        max_length=3)
+
     def __str__(self):
         pid_info = self.pid and f'{self.pid}@{self.create_time}'
-        return f'{self.name}: {self.is_enabled}/{pid_info or "-"}/{self.interval:.3f}sec'
+        return f'{self.name}: {self.is_enabled}/{pid_info or "-"}/{self.scan_mode}/{self.interval:.3f}sec'
 
     class Status(Enum):
-        Waitting = "Waitting"
-        Running = "Running"
-        Error = "Error"
-        Zombie = "Zombie"
-        Killed = "Killed"
+        WAITTING = "Waitting"
+        RUNNING = "Running"
+        ERROR = "Error"
+        ZOMBIE = "Zombie"
+        KILLED = "Killed"
 
     @property
     def status(self) -> 'Status':
@@ -285,11 +296,11 @@ class BleScanEvent(models.Model):
         proc = psutil.Process()
         proc._init(self.pid, _ignore_nsp=True)
         proc._create_time = self.create_time
-        status = {None: {True: self.Status.Error,
-                         False: self.Status.Waitting}[self.is_enabled]}.get(self.pid)\
-            or {True: {True: self.Status.Running,
-                       False: self.Status.Zombie}[self.is_enabled],
-                False: self.Status.Killed}[proc.is_running()]
+        status = {None: {True: self.Status.ERROR,
+                         False: self.Status.WAITTING}[self.is_enabled]}.get(self.pid)\
+            or {True: {True: self.Status.RUNNING,
+                       False: self.Status.ZOMBIE}[self.is_enabled],
+                False: self.Status.KILLED}[proc.is_running()]
         return status
 
     @property
@@ -299,7 +310,7 @@ class BleScanEvent(models.Model):
         Returns:
             bool: "True" is running
         """
-        return self.status in [self.Status.Running, self.Status.Zombie]
+        return self.status in [self.Status.RUNNING, self.Status.ZOMBIE]
 
     class Meta:
         verbose_name = _('ble scan event')
