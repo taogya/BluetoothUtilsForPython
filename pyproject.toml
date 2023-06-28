@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django_bleak"
-version = "0.0.1"
+version = "1.1.0"
 authors = [
   { name="Taogya", email="132679709+taogya@users.noreply.github.com" },
 ]
