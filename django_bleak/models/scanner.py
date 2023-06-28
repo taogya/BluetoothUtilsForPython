@@ -138,7 +138,7 @@ class BleScanFilter(models.Model):
 
     company_code = models.IntegerField(
         verbose_name=_('company code'),
-        help_text=r'0xFFFF',
+        help_text=r'65535',
         null=True,
         blank=True,
         default=None,
