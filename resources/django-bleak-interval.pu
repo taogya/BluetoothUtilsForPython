@@ -1,0 +1,23 @@
+@startuml "django-bleak-interval"
+participant device
+participant ble_scanner
+database db
+
+loop while BleScanEvent.is_enabled
+    activate ble_scanner #EBFAFC
+    device -> ble_scanner: advertising
+    device -> ble_scanner: advertising
+    deactivate ble_scanner
+    device -x ble_scanner: advertising
+    activate ble_scanner #CA2B13
+    loop received data
+        alt matches BleScanFilter
+            ble_scanner -> db: save BleScanDevice
+            ble_scanner -> db: save BleScanResult
+            deactivate ble_scanner
+        end
+    end
+end
+
+
+@enduml
