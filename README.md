@@ -111,7 +111,7 @@ $ python manage.py ble_scanner ScanEvent001
 interval scan and save ble advertising data.  
 Scanning every BleScanEvent.interval seconds, and the process validate them.  
 Received any data during validating is discarded.  
-BleScanEvent.is_enabled is checked every BleScanEvent.interval seconds.
+BleScanEvent.is_enabled is checked every BleScanEvent.interval seconds.  
 ![django-bleak-er](/resources/django-bleak-interval.png)
 ```sh
 $ python manage.py ble_scanner_interval ScanEvent001
