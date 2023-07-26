@@ -5,10 +5,11 @@ import subprocess
 import time
 
 import psutil
+from rangefilter.filters import DateTimeRangeFilterBuilder
+
 from django.contrib import admin, messages
 from django.utils.translation import gettext_lazy as _
 from django_bleak import models
-from rangefilter.filters import DateTimeRangeFilterBuilder
 
 logger = logging.getLogger('ble_scanner')
 
@@ -37,7 +38,7 @@ class BleScanEventAdmin(admin.ModelAdmin):
             try:
                 qs = queryset.first()
                 mode = models.BleScanEvent.ModeChoices
-                managepy = glob.glob('*/manage.py')
+                managepy = glob.glob('**/manage.py', recursive=True)
                 if managepy:
                     subprocess.Popen([
                         'python',
