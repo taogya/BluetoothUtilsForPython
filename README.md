@@ -100,7 +100,7 @@ ble_scanner create scanned result.
 # Command
 ## ble_scanner
 sequencial scan and save ble advertising data.  
-If received advertising data, the process validate it immediately.
+If received advertising data, the process validate it immediately.  
 Received any data during validating is discarded.  
 BleScanEvent.is_enabled is checked every BleScanEvent.interval seconds.  
 ![django-bleak-er](/resources/django-bleak-sequencial.png)
