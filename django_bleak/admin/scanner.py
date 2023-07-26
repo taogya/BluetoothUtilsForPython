@@ -1,8 +1,11 @@
 # Register your models here.
+import glob
 import logging
+import subprocess
+import time
 
+import psutil
 from django.contrib import admin, messages
-from django.core.management import call_command
 from django.utils.translation import gettext_lazy as _
 from django_bleak import models
 from rangefilter.filters import DateTimeRangeFilterBuilder
@@ -34,16 +37,33 @@ class BleScanEventAdmin(admin.ModelAdmin):
             try:
                 qs = queryset.first()
                 mode = models.BleScanEvent.ModeChoices
-                call_command({mode.SEQUENTIAL: 'ble_scanner',
-                              mode.INTERVAL: 'ble_scanner_interval'}[qs.scan_mode],
-                             qs.name)
+                managepy = glob.glob('*/manage.py')
+                if managepy:
+                    subprocess.Popen([
+                        'python',
+                        managepy[0],
+                        {mode.SEQUENTIAL: 'ble_scanner',
+                            mode.INTERVAL: 'ble_scanner_interval'}[qs.scan_mode],
+                        qs.name
+                    ])
+                    cnt = 0
+                    while not models.BleScanEvent.objects.filter(name=qs.name).first().is_running and cnt < 10:
+                        time.sleep(1)
+                        cnt += 1
             except BaseException:
                 logger.exception('ble_scanner error')
                 messages.error(request, _('execution failed.'))
     run_scan_event.short_description = _('run selected scan event')
 
     def stop_scan_event(self, request, queryset):
-        queryset.update(is_enabled=False)
+        for q in queryset:
+            try:
+                q.pid and psutil.Process(q.pid).kill()
+            except psutil.NoSuchProcess:
+                pass
+            queryset.update(is_enabled=False,
+                            pid=None,
+                            create_time=None)
 
     stop_scan_event.short_description = _('stop selected scan event')
 

@@ -1,7 +1,7 @@
 
 import asyncio
 import logging
-import os
+import time
 
 import bleak as blk
 import psutil
@@ -9,7 +9,6 @@ from asgiref.sync import sync_to_async
 
 from django.core.management import BaseCommand
 from django.core.management.base import CommandParser
-from django.db import connection
 from django_bleak.models import BleScanEvent, BleScanFilter
 
 logger = logging.getLogger('ble_scanner')
@@ -35,7 +34,7 @@ class Command(BaseCommand):
         try:
             while event.interval > 0.0:
                 logger.debug(f'{event}')
-                await asyncio.sleep(event.interval)
+                time.sleep(event.interval)
                 if not event.is_enabled:
                     logger.info('is_enabled switched to false.')
                     break
@@ -67,6 +66,7 @@ class Command(BaseCommand):
         return scan_event
 
     def main(self, event, interval, *args, **options):
+        logger.info('start ble_scanner')
         try:
             # do task.
             async_event = asyncio.Event()
@@ -85,14 +85,8 @@ class Command(BaseCommand):
                 scan_event.create_time = None
                 scan_event.save()
                 logger.info(f'updated scan event. -> {scan_event}')
+            logger.info('end ble_scanner')
 
     def handle(self, event, *args, **options):
         scan_event = self.get_scan_event(event)
-        pid = 0 if options['debug'] else os.fork()
-        if pid == 0:
-            logger.info('start ble_scanner')
-            connection.close()
-            self.main(scan_event.name, scan_event.interval, *args, **options)
-            logger.info('end ble_scanner')
-            return
-        logger.info(f'start -> {pid}')
+        self.main(scan_event.name, scan_event.interval, *args, **options)

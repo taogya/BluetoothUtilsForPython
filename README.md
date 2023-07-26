@@ -100,7 +100,6 @@ ble_scanner create scanned result.
 # Command
 ## ble_scanner
 sequencial scan and save ble advertising data.  
-This command is daemonized.  
 If received advertising data, the process validate it immediately.
 Received any data during validating is discarded.  
 BleScanEvent.is_enabled is checked every BleScanEvent.interval seconds.
@@ -110,7 +109,6 @@ $ python manage.py ble_scanner ScanEvent001
 ```
 ## ble_scanner_interval
 interval scan and save ble advertising data.  
-This command is daemonized.  
 Scanning every BleScanEvent.interval seconds, and the process validate them.  
 Received any data during validating is discarded.  
 BleScanEvent.is_enabled is checked every BleScanEvent.interval seconds.
